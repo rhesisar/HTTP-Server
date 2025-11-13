@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
         	} else {
 				if (fstat(fi, &st) == -1) /* To obtain file size */
 					error("fstat");
-				if ((body = mmap(NULL, st.st_size, PROT_WRITE, MAP_PRIVATE, fi, 0)) == NULL )
+					if ((body = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fi, 0)) == MAP_FAILED)
 					error("mmap");
 			}
 			printf("%.*s\n", (int)strlen(status[req->status]), status[req->status]);
