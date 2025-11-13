@@ -93,67 +93,67 @@ int main(int argc, char *argv[])
 				requestShutdownSocket(request->clientId);
 			} else {
 				/* Semantics OK: now we can build a path and touch the filesystem */
-			printf("Valid request semantics\n");
-			target = buildtarget(req);
-			printf("Fetching requested resource: %s\n", target);
-			/* Open file and save size */
-			if ((fi = open(target, O_RDONLY)) == -1) {
+				printf("Valid request semantics\n");
+				target = buildtarget(req);
+				printf("Fetching requested resource: %s\n", target);
+				/* Open file and save size */
+				if ((fi = open(target, O_RDONLY)) == -1) {
 					if (errno == EACCES) {
 						req->status = 403;
 					} else if (errno == ENOENT) {
-				req->status = 404;
+						req->status = 404;
 					} else {
 						error("open target");
 					}
-        	} else {
-				if (fstat(fi, &st) == -1) /* To obtain file size */
-					error("fstat");
+				} else {
+					if (fstat(fi, &st) == -1) /* To obtain file size */
+						error("fstat");
 					if ((body = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fi, 0)) == MAP_FAILED)
-					error("mmap");
-			}
-			printf("%.*s\n", (int)strlen(status[req->status]), status[req->status]);
-			writeDirectClient(request->clientId, status[req->status], strlen(status[req->status]));
-			writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+						error("mmap");
+				}
+				printf("%.*s\n", (int)strlen(status[req->status]), status[req->status]);
+				writeDirectClient(request->clientId, status[req->status], strlen(status[req->status]));
+				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
 				/* Error from filesystem (403/404) */
-			if (req->status != 200) {
-				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
-				endWriteDirectClient(request->clientId);
-				requestShutdownSocket(request->clientId);
+				if (req->status != 200) {
+					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+					endWriteDirectClient(request->clientId);
+					requestShutdownSocket(request->clientId);
 				/* Valid 200 OK */
-			} else {
-				printf("%s%.*s\n", CONNECTION, (int)strlen(connections[req->connection]), connections[req->connection]);
-				writeDirectClient(request->clientId, CONNECTION, strlen(CONNECTION));
-				writeDirectClient(request->clientId, connections[req->connection], strlen(connections[req->connection]));
-				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
-				switch (req->method) {
-				case GET:
-					writeDirectClient(request->clientId, CONTENT_LENGTH, strlen(CONTENT_LENGTH));
-					length = emalloc((int)log10(st.st_size) + 2);
+				} else {
+					printf("%s%.*s\n", CONNECTION, (int)strlen(connections[req->connection]), connections[req->connection]);
+					writeDirectClient(request->clientId, CONNECTION, strlen(CONNECTION));
+					writeDirectClient(request->clientId, connections[req->connection], strlen(connections[req->connection]));
+					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+					switch (req->method) {
+					case GET:
+						writeDirectClient(request->clientId, CONTENT_LENGTH, strlen(CONTENT_LENGTH));
+						length = emalloc((int)log10(st.st_size) + 2);
 						snprintf(length, 10, "%lld", (long long)st.st_size);
-					printf("%s%.*s\n", CONTENT_LENGTH, (int)strlen(length), length);
-					writeDirectClient(request->clientId, length, strlen(length));
-					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
-					free(length);
+						printf("%s%.*s\n", CONTENT_LENGTH, (int)strlen(length), length);
+						writeDirectClient(request->clientId, length, strlen(length));
+						writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+						free(length);
 
-					writeDirectClient(request->clientId, CONTENT_TYPE, strlen(CONTENT_TYPE));
+						writeDirectClient(request->clientId, CONTENT_TYPE, strlen(CONTENT_TYPE));
 						type = file_content_type(target);
-					printf("%s%.*s\n", CONTENT_TYPE, (int)strlen(type), type);
-					writeDirectClient(request->clientId, type, strlen(type));
-					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+						printf("%s%.*s\n", CONTENT_TYPE, (int)strlen(type), type);
+						writeDirectClient(request->clientId, type, strlen(type));
+						writeDirectClient(request->clientId, CRLF, strlen(CRLF));
 
-					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
-					writeDirectClient(request->clientId, body, st.st_size);
-					endWriteDirectClient(request->clientId);
-					break;
-				case HEAD:
-					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
-					endWriteDirectClient(request->clientId);
-					break;
-				default:
-					if (req->connection == CLOSE) {
-						printf("Closing connection.\n");
-						requestShutdownSocket(request->clientId);
-					}
+						writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+						writeDirectClient(request->clientId, body, st.st_size);
+						endWriteDirectClient(request->clientId);
+						break;
+					case HEAD:
+						writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+						endWriteDirectClient(request->clientId);
+						break;
+					default:
+						if (req->connection == CLOSE) {
+							printf("Closing connection.\n");
+							requestShutdownSocket(request->clientId);
+						}
 					}
 					if (body && st.st_size > 0)
 						munmap(body, st.st_size);
@@ -166,11 +166,11 @@ int main(int argc, char *argv[])
 		// on ne se sert plus de request a partir de maintenant, on peut donc liberer...
 		freeRequest(request);
 		if (req)
-		free(req);
+			free(req);
 		if (type)
-		free(type);
+			free(type);
 		if (target)
-		free(target);
+			free(target);
 	}
 	error("HTTP server ended unexpectedly");
 }
