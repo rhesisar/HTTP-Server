@@ -84,11 +84,13 @@ int main(int argc, char *argv[])
 			printf("Fetching requested resource: %s\n", target);
 			/* Open file and save size */
 			if ((fi = open(target, O_RDONLY)) == -1) {
-				if (errno == EACCES)
-					error("No access to target file");
-				if (errno == ENOENT)
-					error("No such file exists");
+					if (errno == EACCES) {
+						req->status = 403;
+					} else if (errno == ENOENT) {
 				req->status = 404;
+					} else {
+						error("open target");
+					}
         	} else {
 				if (fstat(fi, &st) == -1) /* To obtain file size */
 					error("fstat");
