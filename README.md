@@ -17,7 +17,7 @@ Supports `GET`/`HEAD`, virtual hosts via `Host`, MIME detection with `libmagic`,
 ```
 cd server
 make          # builds ./http-server (links libparser + librequest + libmagic)
-make run      # exports LD_LIBRARY_PATH and starts the server in the background
+make run      # Starts the server in the background
 # ...
 make stop     # stops the server
 make clean
@@ -47,7 +47,7 @@ make clean
 ## Project layout
 ```
 server/
-  Makefile               # build, run (sets LD_LIBRARY_PATH), stop
+  Makefile               # build, run, stop
   README.md              # (old minimal readme)
   src/
     httpserver.c         # socket loop, response building, file serving

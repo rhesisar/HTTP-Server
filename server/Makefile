@@ -1,14 +1,24 @@
 MAIN = http-server
-SRC_C = $(wildcard src/*.c)
+SRC_C = $(wildcard src/*.c) \
+        ../parser/src/api.c \
+        ../parser/src/syntax.c \
+        ../parser/src/tree.c
 CFLAGS = -Wall -g -O0
-IFLAGS = -I api/libparser -I api/librequest-0.5/
-LFLAGS = -L api/libparser -L api/librequest-0.5/ -lparser -lrequest -lm -lmagic
+
+# Include paths
+IFLAGS = -I api/librequest-0.5/ \
+         -I /usr/local/include \
+         -I /opt/homebrew/include
+
+# Library paths + libs
+LFLAGS = -L /usr/local/lib \
+         -L /opt/homebrew/lib \
+         -lm -lmagic
 
 $(MAIN): $(SRC_C)
 	gcc $^ -o $@ $(CFLAGS) $(IFLAGS) $(LFLAGS)
 
 run:
-	export LD_LIBRARY_PATH=./api/libparser:./api/librequest-0.5 && \
 	./$(MAIN) &
 
 stop:
