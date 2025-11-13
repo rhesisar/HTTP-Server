@@ -72,6 +72,9 @@ int main(int argc, char *argv[])
 			endWriteDirectClient(request->clientId);
 			printf("Closing connection\n");
 			requestShutdownSocket(request->clientId);
+			// Free the parse tree for this request
+    		root = getRootTree();
+    		purgeTree(root);
 		} else {
 			printf("Valid request syntax\n");
 			root = getRootTree();
@@ -110,7 +113,7 @@ int main(int argc, char *argv[])
 				case GET:
 					writeDirectClient(request->clientId, CONTENT_LENGTH, strlen(CONTENT_LENGTH));
 					length = emalloc((int)log10(st.st_size) + 2);
-					sprintf(length, "%ld", st.st_size);
+						snprintf(length, 10, "%lld", (long long)st.st_size);
 					printf("%s%.*s\n", CONTENT_LENGTH, (int)strlen(length), length);
 					writeDirectClient(request->clientId, length, strlen(length));
 					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
@@ -135,14 +138,22 @@ int main(int argc, char *argv[])
 						printf("Closing connection.\n");
 						requestShutdownSocket(request->clientId);
 					}
+					}
+					if (body && st.st_size > 0)
+						munmap(body, st.st_size);
+					if (fi != -1)
+						close(fi);
 				}
 			}
 			purgeTree(root);
 		}
 		// on ne se sert plus de request a partir de maintenant, on peut donc liberer...
 		freeRequest(request);
+		if (req)
 		free(req);
+		if (type)
 		free(type);
+		if (target)
 		free(target);
 	}
 	error("HTTP server ended unexpectedly");
