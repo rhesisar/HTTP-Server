@@ -31,7 +31,7 @@ int main(int argc,char *argv[])
     }
 	if (fstat(fi, &st) == -1) /* To obtain file size */
 		return false;
-	if ((addr = mmap(NULL, st.st_size, PROT_WRITE, MAP_PRIVATE, fi, 0)) == NULL)
+	if ((addr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fi, 0)) == NULL)
 		return false;
 	/* This is a special HACK since identificateur in C can't have character '-' */
 	if (argc == 3) { 
