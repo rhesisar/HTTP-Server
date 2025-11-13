@@ -20,10 +20,12 @@ static void readData(int fd,FCGI_Header *h,size_t *len);
 static void writeSocket(int fd,FCGI_Header *h,unsigned int len);
 static void writeLen(int len, char **p);
 static int addNameValuePair(FCGI_Header *h,char *name,char *value);
-static void sendGetValue(int fd);
 static void sendBeginRequest(int fd,unsigned short requestId,unsigned short role,unsigned char flags);
+# if 0
+static void sendGetValue(int fd);
 static void sendAbortRequest(int fd,unsigned short requestId);
 static void sendWebData(int fd,unsigned char type,unsigned short requestId,char *data,unsigned int len);
+#endif
 
 void phptohtml(char *phpfile)
 {
@@ -163,6 +165,25 @@ static int addNameValuePair(FCGI_Header *h,char *name,char *value)
 }
 // =========================================================================================================== //
 
+static void sendBeginRequest(int fd,unsigned short requestId,unsigned short role,unsigned char flags)
+{
+FCGI_Header h;
+FCGI_BeginRequestBody *begin;
+
+	h.version=FCGI_VERSION_1;
+	h.type=FCGI_BEGIN_REQUEST;
+	h.requestId=htons(requestId);
+	h.contentLength=sizeof(FCGI_BeginRequestBody);
+	h.paddingLength=0;
+	begin=(FCGI_BeginRequestBody *) &(h.contentData);
+	begin->role=htons(role);
+	begin->flags=flags;
+	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));
+}
+
+// =========================================================================================================== //
+
+#if 0
 static void sendGetValue(int fd)
 {
 FCGI_Header h;
@@ -179,28 +200,13 @@ FCGI_Header h;
 }
 
 // =========================================================================================================== //
-static void sendBeginRequest(int fd,unsigned short requestId,unsigned short role,unsigned char flags)
-{
-FCGI_Header h;
-FCGI_BeginRequestBody *begin;
 
-	h.version=FCGI_VERSION_1;
-	h.type=FCGI_BEGIN_REQUEST;
-	h.requestId=htons(requestId);
-	h.contentLength=sizeof(FCGI_BeginRequestBody);
-	h.paddingLength=0;
-	begin=(FCGI_BeginRequestBody *) &(h.contentData);
-	begin->role=htons(role);
-	begin->flags=flags;
-	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));
-}
-// =========================================================================================================== //
 static void sendAbortRequest(int fd,unsigned short requestId)
 {
 FCGI_Header h;
 
 	h.version=FCGI_VERSION_1;
-	h.type=htons(FCGI_ABORT_REQUEST);
+	h.type=FCGI_ABORT_REQUEST;
 	h.requestId=requestId;
 	h.contentLength=0;
 	h.paddingLength=0;
@@ -225,6 +231,7 @@ FCGI_Header h;
 	memcpy(h.contentData,data,len);
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));
 }
+#endif
 
 // =========================================================================================================== //
 static int createSocket(int port)
