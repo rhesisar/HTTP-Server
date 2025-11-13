@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <math.h>
+#include <unistd.h>
 
 // for librequest
 #include "request.h"
