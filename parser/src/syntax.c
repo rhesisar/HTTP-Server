@@ -2464,7 +2464,6 @@ octet(char **sp, char *s_end, Node ***n)
     if (range(sp, s_end, &cur, 0x00, 0xFF)){
         freeTree(**n);
         **n = NULL;
-        fprintf(stderr, "Retour 1 mon reuf\n");
         return 1;
     }
 
@@ -2474,7 +2473,6 @@ octet(char **sp, char *s_end, Node ***n)
         cur = &((*cur)->sibling);
     }
     *n = &((**n)->sibling);
-    fprintf(stderr, "Retour 0 mon gars\n");
     return 0;
 }
 
