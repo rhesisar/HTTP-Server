@@ -5,7 +5,7 @@
 #include "util.h"
 
 char *
-content_type(char *filename)
+file_content_type(char *filename)
 {
     const char *magic_full;
     magic_t magic_cookie;
@@ -13,9 +13,12 @@ content_type(char *filename)
 
     /* MAGIC_MIME tells magic to return a mime of the file,
        but you can specify different things	*/
-    if (!strcmp(filename + strlen(filename) - strlen(".css"), ".css")) {
-        return strdup("text/css; charset=us-ascii");
-    }
+    size_t len = strlen(filename);
+	size_t ext_len = strlen(".css");
+	if (len >= ext_len && !strcmp(filename + len - ext_len, ".css")) {
+    	return strdup("text/css; charset=us-ascii");
+	}
+
     if ((magic_cookie = magic_open(MAGIC_MIME)) == NULL) {
         error("magic_open");
     }
