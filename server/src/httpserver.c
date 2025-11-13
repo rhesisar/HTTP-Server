@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 					free(length);
 
 					writeDirectClient(request->clientId, CONTENT_TYPE, strlen(CONTENT_TYPE));
-					type = content_type(target);
+						type = file_content_type(target);
 					printf("%s%.*s\n", CONTENT_TYPE, (int)strlen(type), type);
 					writeDirectClient(request->clientId, type, strlen(type));
 					writeDirectClient(request->clientId, CRLF, strlen(CRLF));
