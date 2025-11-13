@@ -100,12 +100,12 @@ int main(int argc, char *argv[])
 			printf("%.*s\n", (int)strlen(status[req->status]), status[req->status]);
 			writeDirectClient(request->clientId, status[req->status], strlen(status[req->status]));
 			writeDirectClient(request->clientId, CRLF, strlen(CRLF));
-			/* Error */
+				/* Error from filesystem (403/404) */
 			if (req->status != 200) {
 				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
 				endWriteDirectClient(request->clientId);
 				requestShutdownSocket(request->clientId);
-			/* Valid */
+				/* Valid 200 OK */
 			} else {
 				printf("%s%.*s\n", CONNECTION, (int)strlen(connections[req->connection]), connections[req->connection]);
 				writeDirectClient(request->clientId, CONNECTION, strlen(CONNECTION));
