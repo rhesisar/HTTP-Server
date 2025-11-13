@@ -80,6 +80,18 @@ int main(int argc, char *argv[])
 			printf("Valid request syntax\n");
 			root = getRootTree();
 			req = semantics(root);
+
+			if (req->status != 200) {
+				/* Semantic error (400 / 501 / 505 / etc.) */
+				printf("Invalid request semantics (status %d)\n", req->status);
+				printf("%.*s\n", (int)strlen(status[req->status]), status[req->status]);
+				writeDirectClient(request->clientId, status[req->status], strlen(status[req->status]));
+				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
+				endWriteDirectClient(request->clientId);
+				requestShutdownSocket(request->clientId);
+			} else {
+				/* Semantics OK: now we can build a path and touch the filesystem */
 			printf("Valid request semantics\n");
 			target = buildtarget(req);
 			printf("Fetching requested resource: %s\n", target);
