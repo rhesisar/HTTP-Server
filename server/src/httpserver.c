@@ -43,17 +43,17 @@ char * const status[] = {
 
 int main(int argc, char *argv[])
 {
-	message *request;
-	_Token *root;
-	Request *req;
-	int fi;
-	struct stat st;
-	char *body;
-	char *length;
-	char *target;
-	char *type;
-
 	while (1) {
+		message *request = NULL;
+		_Token *root = NULL;
+		Request *req = NULL;
+		int fi = -1;
+		struct stat st;
+		char *body = NULL;
+		char *length = NULL;
+		char *target = NULL;
+		char *type = NULL;
+	
 		// On attend la reception d'une requete HTTP, request pointera vers une ressource allouée par librequest.
 		printf("Waiting for request...\n");
 		if ((request = getRequest(PORT)) == NULL)
