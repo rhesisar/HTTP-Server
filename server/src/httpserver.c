@@ -36,7 +36,8 @@ static char * buildtarget(Request *req);
 char * const status[] = {
 	[200] = "HTTP/1.1 200 OK",
 	[400] = "HTTP/1.1 400 Bad Request",
-	[404] = "HTTP/1.1 400 Not Found",
+	[403] = "HTTP/1.1 403 Forbidden",
+	[404] = "HTTP/1.1 404 Not Found",
 	[501] = "HTTP/1.1 501 Not Implemented",
 	[505] = "HTTP/1.1 505 HTTP Version Not Supported"
 };
