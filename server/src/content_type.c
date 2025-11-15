@@ -27,7 +27,6 @@ file_content_type(char *filename)
         error("magic_load");
     }
     magic_full = magic_file(magic_cookie, filename);
-    printf("%s\n", magic_full);
     r = strdup(magic_full);
     magic_close(magic_cookie);
     return r;
