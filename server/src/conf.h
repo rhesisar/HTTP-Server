@@ -2,9 +2,7 @@
 #define _CONF_H_
 
 #define PORT 8080
-#ifndef SITES_FOLDER
 #define SITES_FOLDER "./www"
-#endif
 #define DFLT_TARG "index.html"
 #define DFLT_HOST SITE1_FR
 
