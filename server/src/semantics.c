@@ -58,6 +58,7 @@ initreq(Request *req)
 	req->host = -1;
 	req->target = NULL;
 	req->status = 200;
+	req->connection = CLOSE;
 }
 
 

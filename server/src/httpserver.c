@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
 				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
 				writeDirectClient(request->clientId, CRLF, strlen(CRLF));
 				endWriteDirectClient(request->clientId);
+				printf("Closing connection\n");
 				requestShutdownSocket(request->clientId);
 			} else {
 				/* Semantics OK: now we can build a path and touch the filesystem */
@@ -147,11 +148,10 @@ int main(int argc, char *argv[])
 						writeDirectClient(request->clientId, CRLF, strlen(CRLF));
 						endWriteDirectClient(request->clientId);
 						break;
-					default:
-						if (req->connection == CLOSE) {
-							printf("Closing connection.\n");
-							requestShutdownSocket(request->clientId);
-						}
+					}
+					if (req->connection == CLOSE) {
+						printf("Closing connection.\n");
+						requestShutdownSocket(request->clientId);
 					}
 					if (body && st.st_size > 0)
 						munmap(body, st.st_size);
