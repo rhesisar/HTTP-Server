@@ -6,8 +6,7 @@ SRC_C = $(wildcard src/*.c) \
 CFLAGS = -Wall -g -O0
 
 # Include paths
-IFLAGS = -I api/librequest-0.5/ \
-         -I /usr/local/include \
+IFLAGS = -I /usr/local/include \
          -I /opt/homebrew/include
 
 # Library paths + libs

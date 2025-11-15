@@ -12,10 +12,9 @@ Code source dans src/
 	- syntax.c/h : Partie syntaxe abnf
 	- tree.c/h : Partie creation et recherche dans l'arbre
 	- util.c/h : Fonctions utilitaires
-	- api.c/h : API fonctionnelle
-	- main.c : main recupere sur chamilo
+	- main.c: Point d'entrée
 
-format.txt
+format.md
 	Fichier utilise pour rapidement creer les fonctions de syntaxe,
 	laisse pour regarder a titre indicatif, peut comporter des
 	erreurs / approximations
@@ -30,4 +29,4 @@ fuzzer/
 	10,000 fichiers de tests
 
 arbres/
-	Quelques tests, laisses a titre indicatif
+	Quelques tests, laissés a titre indicatif

@@ -13,13 +13,11 @@
 #include <math.h>
 #include <unistd.h>
 
-// for librequest
-#include "request.h"
-
 // for parser
 #include "httpparser.h" // this will declare internal type used by the parser
 #include "api.h"
 
+#include "request.h"
 #include "semantics.h"
 #include "content_type.h"
 #include "util.h"
@@ -56,7 +54,7 @@ int main(int argc, char *argv[])
 		char *target = NULL;
 		char *type = NULL;
 	
-		// On attend la reception d'une requete HTTP, request pointera vers une ressource allouée par librequest.
+		// On attend la reception d'une requete HTTP, request pointera vers une ressource allouée.
 		printf("Waiting for request...\n");
 		if ((request = getRequest(PORT)) == NULL)
 			error("getRequest");
