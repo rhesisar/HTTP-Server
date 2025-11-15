@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 		int fi = -1;
 		struct stat st;
 		char *body = NULL;
-		char *length = NULL;
+		char length_buf[32];
 		char *target = NULL;
 		char *type = NULL;
 	
@@ -127,12 +127,10 @@ int main(int argc, char *argv[])
 					switch (req->method) {
 					case GET:
 						writeDirectClient(request->clientId, CONTENT_LENGTH, strlen(CONTENT_LENGTH));
-						length = emalloc((int)log10(st.st_size) + 2);
-						snprintf(length, 10, "%lld", (long long)st.st_size);
-						printf("%s%.*s\n", CONTENT_LENGTH, (int)strlen(length), length);
-						writeDirectClient(request->clientId, length, strlen(length));
+						snprintf(length_buf, sizeof(length_buf), "%lld", (long long)st.st_size);
+						printf("%s%.*s\n", CONTENT_LENGTH, (int)strlen(length_buf), length_buf);
+						writeDirectClient(request->clientId, length_buf, strlen(length_buf));
 						writeDirectClient(request->clientId, CRLF, strlen(CRLF));
-						free(length);
 
 						writeDirectClient(request->clientId, CONTENT_TYPE, strlen(CONTENT_TYPE));
 						type = file_content_type(target);
