@@ -14,10 +14,10 @@
  * - clientAddress is allocated and filled by getRequest(); freeRequest() frees it
  */
 typedef struct message {
-    unsigned int           clientId;       /* socket fd of the client */
-    char                  *buf;            /* request bytes (heap, NULL-terminated) */
-    unsigned int           len;            /* number of valid bytes in buf */
-    struct sockaddr_in    *clientAddress;  /* peer address (heap) */
+	unsigned int clientId; /* socket fd of the client */
+	char *buf;			   /* request bytes (heap, NULL-terminated) */
+	unsigned int len;	   /* number of valid bytes in buf */
+	struct sockaddr_in *clientAddress; /* peer address (heap) */
 } message;
 
 /* Blocking accept + read of a single HTTP request on the given TCP port.

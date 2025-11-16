@@ -277,7 +277,6 @@ int cookie_string(char **sp, char *s_end, Node ***n);
 int header_field(char **sp, char *s_end, Node ***n);
 int crlf(char **sp, char *s_end, Node ***n);
 
-
 int space(char **sp, char *s_end, Node ***n);
 int digit(char **sp, char *s_end, Node ***n);
 int alpha(char **sp, char *s_end, Node ***n);
@@ -287,6 +286,7 @@ int vchar(char **sp, char *s_end, Node ***n);
 int hexdig(char **sp, char *s_end, Node ***n);
 int octet(char **sp, char *s_end, Node ***n);
 int string(char **sp, char *s_end, Node ***n, char *s);
-int range(char **sp, char *s_end, Node ***n, unsigned char inf, unsigned char sup);
+int range(char **sp, char *s_end, Node ***n, unsigned char inf,
+		  unsigned char sup);
 
 #endif

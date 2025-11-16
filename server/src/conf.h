@@ -9,12 +9,12 @@
 /* Edit host files in conf.c */
 
 enum hosts {
-    SITE1_FR,
-    SITE2_FR,
-    WWW_TOTO_COM,
-    WWW_FAKE_COM,
-    N_HOSTS
+	SITE1_FR,
+	SITE2_FR,
+	WWW_TOTO_COM,
+	WWW_FAKE_COM,
+	N_HOSTS
 };
-extern char * const hosts[];
+extern char *const hosts[];
 
 #endif

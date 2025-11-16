@@ -1,16 +1,16 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <stddef.h>
 
-void
-*emalloc(size_t size)
+void *
+emalloc(size_t size)
 {
 	void *p = NULL;
 
-	if ((p = malloc(size)) == NULL){
+	if ((p = malloc(size)) == NULL) {
 		perror("malloc");
-        exit(1);
-    }
+		exit(1);
+	}
 	return p;
 }

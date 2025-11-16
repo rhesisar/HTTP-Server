@@ -1,7 +1,7 @@
 #ifndef _HTTPPARSER_H_
 #define _HTTPPARSER_H_
 
-void *httpgetRootTree(); 
+void *httpgetRootTree();
 /*
 typedef struct node {
 	int level;

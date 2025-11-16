@@ -1,12 +1,12 @@
 #include <ctype.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "httpparser.h"
 #include "api.h"
+#include "conf.h"
+#include "httpparser.h"
 #include "semantics.h"
 #include "util.h"
-#include "conf.h"
 
 static void initreq(Request *req);
 static int method(Request *req, _Token *root);
@@ -19,17 +19,17 @@ static int connection(Request *req, _Token *root);
 void static pct_normalize(char *target);
 void static remove_dot_segments(char *target);
 
-char * const methods[] = {
+char *const methods[] = {
 	[GET] = "GET",
-	[HEAD] = "HEAD"
+	[HEAD] = "HEAD",
 };
 char *const versions[] = {
 	[HTTP1_0] = "HTTP/1.0",
-	[HTTP1_1] = "HTTP/1.1"
+	[HTTP1_1] = "HTTP/1.1",
 };
 char *const connections[] = {
 	[KEEP_ALIVE] = "keep-alive",
-	[CLOSE] = "close"
+	[CLOSE] = "close",
 };
 
 Request *
@@ -42,15 +42,14 @@ semantics(_Token *root)
 	req->host = -1;
 
 	if (method(req, root)
-	|| request_target(req, root)
-	|| http_version(req, root)
-	|| host(req, root)
-	|| content_length(req, root)
-	|| connection(req, root))
+		|| request_target(req, root)
+		|| http_version(req, root)
+		|| host(req, root)
+		|| content_length(req, root)
+		|| connection(req, root))
 		return req;
 	return req;
 }
-
 
 static void
 initreq(Request *req)
@@ -60,7 +59,6 @@ initreq(Request *req)
 	req->status = 200;
 	req->connection = CLOSE;
 }
-
 
 static int
 method(Request *req, _Token *root)
@@ -81,11 +79,10 @@ method(Request *req, _Token *root)
 			return 0;
 		}
 	}
-    req->status = 501;
+	req->status = 501;
 	purgeElement(&tok);
 	return 1;
 }
-
 
 static int
 request_target(Request *req, _Token *root)
@@ -106,7 +103,6 @@ request_target(Request *req, _Token *root)
 	purgeElement(&tok);
 	return 0;
 }
-
 
 static int
 http_version(Request *req, _Token *root)
@@ -131,7 +127,6 @@ http_version(Request *req, _Token *root)
 	return 0;
 }
 
-
 static int
 host(Request *req, _Token *root)
 {
@@ -140,7 +135,7 @@ host(Request *req, _Token *root)
 	int i;
 
 	if (((tok = searchTree(root, "host")) == NULL && req->version == HTTP1_1)
-	|| tok->next != NULL) {
+		|| tok->next != NULL) {
 		req->status = 400;
 		return 1;
 	}
@@ -158,7 +153,6 @@ host(Request *req, _Token *root)
 	purgeElement(&tok);
 	return 0;
 }
-
 
 static int
 content_length(Request *req, _Token *root)
@@ -183,7 +177,7 @@ content_length(Request *req, _Token *root)
 				length1.value = getElementValue(tok->node, &length1.len);
 				length2.value = getElementValue(tok->node, &length2.len);
 				if (length1.len != length2.len
-				|| strncmp(length1.value, length2.value, length1.len)) {
+					|| strncmp(length1.value, length2.value, length1.len)) {
 					req->status = 400;
 					return 1;
 				}
@@ -194,7 +188,6 @@ content_length(Request *req, _Token *root)
 	}
 	return 0;
 }
-
 
 static int
 connection(Request *req, _Token *root)
@@ -217,7 +210,8 @@ connection(Request *req, _Token *root)
 				}
 			} else if (connection.len == strlen(connections[KEEP_ALIVE])) {
 				for (i = 0; i < connection.len; i++) {
-					if (tolower(connection.value[i]) != connections[KEEP_ALIVE][i])
+					if (tolower(connection.value[i])
+						!= connections[KEEP_ALIVE][i])
 						break;
 				}
 				if (i == connection.len) {
@@ -226,8 +220,7 @@ connection(Request *req, _Token *root)
 				}
 			}
 			tok = tok->next;
-		}
-		while (tok->next != NULL);
+		} while (tok->next != NULL);
 		purgeElement(&tok);
 	}
 	if (req->connection != CLOSE && req->version == HTTP1_1) {
@@ -239,7 +232,6 @@ connection(Request *req, _Token *root)
 	req->status = 200;
 	return 0;
 }
-
 
 static void
 pct_normalize(char *target)
@@ -254,8 +246,8 @@ pct_normalize(char *target)
 	/* While room for pct-encoded */
 	for (i = 0; i + 2 < len; i++) {
 		if (target[i] == '%'
-		&& isxdigit(target[i + 1])
-		&& isxdigit(target[i + 2])) {
+			&& isxdigit(target[i + 1])
+			&& isxdigit(target[i + 2])) {
 			/* Format string for strtol */
 			strncpy(buf, target + i + 1, 2);
 			target[i] = strtol(buf, NULL, 16);
@@ -266,7 +258,6 @@ pct_normalize(char *target)
 		}
 	}
 }
-
 
 /* See RFC 3986 Section 5.2.4.*/
 static void
@@ -284,32 +275,32 @@ remove_dot_segments(char *target)
 	while (i < len) {
 		/* A */
 		if (i <= len - strlen("../")
-		&& target[i] == '.'
-		&& target[i + 1] == '.'
-		&& target[i + 2] == '/') {
+			&& target[i] == '.'
+			&& target[i + 1] == '.'
+			&& target[i + 2] == '/') {
 			i += strlen("../");
 		} else if (i <= len - strlen("./")
-		&& target[i] == '.'
-		&& target[i + 1] == '/') {
+				   && target[i] == '.'
+				   && target[i + 1] == '/') {
 			i += strlen("./");
-		/* B */
+			/* B */
 		} else if (i <= len - strlen("/./")
-		&& target[i] == '/'
-		&& target[i + 1] == '.'
-		&& target[i + 2] == '/') {
+				   && target[i] == '/'
+				   && target[i + 1] == '.'
+				   && target[i + 2] == '/') {
 			i += strlen("/.");
 		} else if (i <= len - strlen("/.")
-		&& target[i] == '/'
-		&& target[i + 1] == '.'
-		&& i + 2 == len ) {
+				   && target[i] == '/'
+				   && target[i + 1] == '.'
+				   && i + 2 == len) {
 			i += strlen("/");
 			target[i + 1] = '/';
-		/* C */
+			/* C */
 		} else if (i <= len - strlen("/../")
-		&& target[i] == '/'
-		&& target[i + 1] == '.'
-		&& target[i + 2] == '.'
-		&& target[i + 3] == '/') {
+				   && target[i] == '/'
+				   && target[i + 1] == '.'
+				   && target[i + 2] == '.'
+				   && target[i + 3] == '/') {
 			i += strlen("/..");
 			if (j != 0) {
 				while (buf[j] != '/') {
@@ -317,10 +308,10 @@ remove_dot_segments(char *target)
 				}
 			}
 		} else if (i <= len - strlen("/..")
-		&& target[i] == '/'
-		&& target[i + 1] == '.'
-		&& target[i + 2] == '.'
-		&& i + 3 == len) {
+				   && target[i] == '/'
+				   && target[i + 1] == '.'
+				   && target[i + 2] == '.'
+				   && i + 3 == len) {
 			i += strlen("/.");
 			target[i + 2] = '/';
 			if (j != 0) {
@@ -328,17 +319,15 @@ remove_dot_segments(char *target)
 					j--;
 				}
 			}
-		/* D */
-		} else if ( i <= len - strlen(".")
-		&& target[i] == '.'
-		&& i + 1 == len){
+			/* D */
+		} else if (i <= len - strlen(".") && target[i] == '.' && i + 1 == len) {
 			i += strlen(".");
 		} else if (i <= len - strlen("..")
-		&& target[i] == '.'
-		&& target[i + 1] == '.'
-		&& i + 2 == len) {
+				   && target[i] == '.'
+				   && target[i + 1] == '.'
+				   && i + 2 == len) {
 			i += strlen("..");
-		/* E */
+			/* E */
 		} else {
 			do {
 				buf[j] = target[i];

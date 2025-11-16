@@ -1,18 +1,19 @@
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <string.h> 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "api.h"
 
 #define false 0
 
-int main(int argc,char *argv[])
+int
+main(int argc, char *argv[])
 {
 	int res, fi;
 	char *p, *addr;
@@ -20,22 +21,23 @@ int main(int argc,char *argv[])
 
 	p = NULL;
 
-	if (argc < 2 ) {
-		printf("Usage: httpparser <file> <search>\nAttention <search> is case sensitive\n");
+	if (argc < 2) {
+		printf("Usage: httpparser <file> <search>\nAttention <search> is case "
+			   "sensitive\n");
 		return 0;
 	}
 	/* Ouverture du fichier contenant la requête */
 	if ((fi = open(argv[1], O_RDWR)) == -1) {
 		perror("open");
 		return false;
-    }
+	}
 	if (fstat(fi, &st) == -1) /* To obtain file size */
 		return false;
 	if ((addr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fi, 0)) == NULL)
 		return false;
 	/* This is a special HACK since identificateur in C can't have character '-' */
-	if (argc == 3) { 
-		p = argv[2]; 	
+	if (argc == 3) {
+		p = argv[2];
 		printf("Searching for %s\n", p);
 		while (*p) {
 			if (*p == '-') {
@@ -63,5 +65,5 @@ int main(int argc,char *argv[])
 		purgeTree(root);
 	}
 	close(fi);
-	return(res);
+	return (res);
 }
