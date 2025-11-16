@@ -1,6 +1,7 @@
 #include <magic.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 
 #include "util.h"
 
@@ -14,8 +15,8 @@ file_content_type(char *filename)
 	/* MAGIC_MIME tells magic to return a mime of the file,
 	   but you can specify different things	*/
 	size_t len = strlen(filename);
-	size_t ext_len = strlen(".css");
-	if (len >= ext_len && !strcmp(filename + len - ext_len, ".css")) {
+	size_t css_len = strlen(".css");
+	if (len >= css_len && !strcasecmp(filename + len - css_len, ".css")) {
 		return strdup("text/css; charset=us-ascii");
 	}
 
