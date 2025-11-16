@@ -5,7 +5,7 @@
 
 #include "fastcgi.h"
 
-#define PHP_RESULT_FILE "tmp.html"
+#define PHP_RESULT_FILE "/tmp/httpserver_php_result.html"
 
 void phptohtml(char *phpfile);
 
