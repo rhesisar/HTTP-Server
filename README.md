@@ -1,88 +1,159 @@
-# HTTP Server
+# HTTP/1.1 Server and Parser (C)
 
-Minimal HTTP/1.1 static file server with a formal HTTP parser.
+Small HTTP/1.1 stack in C composed of two parts:
 
-Supports `GET`/`HEAD`, virtual hosts via `Host`, MIME detection with `libmagic`, and optional PHP execution through `FastCGI` (`php-fpm` on `127.0.0.1:9000`).
+- `server/` - single-process HTTP server with request parsing, semantic validation, static file serving, and `.php` execution through php-fpm (FastCGI).
+- `parser/` - hand-written recursive-descent parser built from HTTP/1.1 ABNF, returning a structured request and utilities.
 
-## What it does
-- **Parses and validates requests**: method, request-target, version (`HTTP/1.0` / `HTTP/1.1`), `Host` (required on 1.1), `Connection`, `Content-Length`.
-- **Normalizes paths**: percent-decoding + dot-segment removal to avoid traversal, then maps to a vhost directory.
-- **Virtual hosts**: serves files from `SITES_FOLDER/<host>/<target>`.
-- **Defaults**: empty path --> `index.html` (configurable).
-- **Content types**: detected via `libmagic`.
-- **HEAD support**: same headers as `GET`, no body.
-- **PHP via FastCGI**: `.php` requests are sent to `php-fpm` and the generated HTML is served.
+The code aims to be compact and explicit.
 
-## Build & Run
-```
-cd server
-make          # builds ./http-server (links libparser + librequest + libmagic)
-make run      # Starts the server in the background
-# ...
-make stop     # stops the server
-make clean
-```
+---
 
-## Default configuration
+## Features
 
-- Port: 8080 (`server/src/conf.h` --> `PORT`)
-- Document root: `/var/www` (`SITES_FOLDER`)
-- Default file: `index.html` (`DFLT_TARG`)
-- Virtual hosts: edit `server/src/conf.c` (e.g., `site1.fr`, `www.toto.com`, ...)
-- Tip: create directories like `/var/www/site1.fr/` and drop `index.html` inside.
+- C99, POSIX sockets, no external deps for the core server.
+- Request line + headers parsing from ABNF (`parser/src/syntax.c`), exposed to the server via `server/src/httpparser.h`.
+- Semantic checks (`server/src/semantics.c`): required `Host`, method and version, body rules, etc.
+- Static file serving with extension to MIME mapping (`server/src/content_type.c`).
+- `.php` support via a tiny FastCGI client that talks to php-fpm on `127.0.0.1:9000` (`server/src/phptohtml.c`).
+- Code-defined virtual hosts in `server/src/conf.c` mapped to folders under `server/www/`. No external config files.
 
-## Usage examples
-### `GET`
-`curl -i http://localhost:8080/`
+---
 
-### `HEAD`
-`curl -I http://localhost:8080/assets/app.css`
+## Repository layout
 
-### Targeting a specific vhost (matches `server/src/conf.c`)
-`curl -H 'Host: site1.fr' http://localhost:8080/`
-
-### PHP (requires `php-fpm` listening on `127.0.0.1:9000`)
-`curl -H 'Host: site1.fr' http://localhost:8080/info.php`
-
-## Project layout
-```
+```bash
 server/
-  Makefile               # build, run, stop
-  README.md              # (old minimal readme)
   src/
-    httpserver.c         # socket loop, response building, file serving
-    semantics.c,h        # HTTP semantics: method/host/connection/version/target checks
-    conf.c,h             # PORT, SITES_FOLDER, DFLT_TARG, vhost list
-    content_type.c,h     # libmagic-based MIME detection
-    phptohtml.c,h        # FastCGI client --> php-fpm (127.0.0.1:9000), emits tmp.html
-    fastcgi.h            # FastCGI protocol structs/utilities
-    util.c,h             # emalloc(), error(), helpers
-    api.h, httpparser.h  # parser API interfaces
-  api/
-    libparser/           # HTTP ABNF parser (shared lib, prebuilt .so)
-    librequest-0.5/      # request I/O helpers (shared lib, headers)
+    httpserver.c        # accept loop and response writer
+    request.c/.h        # request model
+    semantics.c/.h      # HTTP validity rules
+    content_type.c/.h   # file extension -> MIME
+    phptohtml.c/.h      # minimal FastCGI client
+    fastcgi.h           # FastCGI protocol structs
+    conf.c/.h           # vhost table and constants
+    util.c/.h           # helpers
+    httpparser.h        # interface to parser module
+  www/
+    site1.fr/
+      index.html
+      hello.php
+  Makefile
 parser/
-  Makefile               # build test binary (parser)
-  README.txt             # how to run parser tests
-  allrfc.abnf            # ABNF grammar
-  src/                   # syntax tree + API
-  tests/                 # 10,000 fuzzed HTTP samples (test0.txt ... test9999.txt)
+  src/
+    api.c/.h            # parse entry points
+    syntax.c/.h         # ABNF -> recursive-descent
+    tree.c/.h           # simple AST helpers
+    util.c/.h
+    main.c              # dev driver
+  tests/
+  allrfc.abnf
+  Makefile
 ```
+
+---
+
+## Build
+
+```bash
+# build the server
+cd server
+make
+
+# optional: build only the parser module
+cd ../parser
+make
+```
+
+---
+
+## Run the server
+
+The repository already contains a default vhost and tiny docroot:
+
+- Hostname: `site1.fr`
+- Docroot: `server/www/site1.fr/` with `index.html` and `hello.php`
+
+Start the binary and fetch a static file:
+
+```bash
+cd server
+make run
+curl -i -H "Host: site1.fr" http://127.0.0.1:8080/
+```
+
+Expected: `HTTP/1.1 200 OK` with the content of `index.html`.
+
+---
+
+## PHP through FastCGI (php-fpm)
+
+Requirements:
+
+- macOS: `brew install php && brew services start php` (php-fpm listens on `127.0.0.1:9000` by default)
+- Debian/Ubuntu: `sudo apt install php-fpm`, set `listen = 127.0.0.1:9000` in the pool config, then restart the service
+
+With php-fpm running:
+
+```bash
+curl -i -H "Host: site1.fr" http://127.0.0.1:8080/hello.php
+```
+
+Implementation detail: the FastCGI client writes php-fpm output to `/tmp/httpserver_php_result.html`, which the server streams back. Content type is inferred via `content_type.c`.
+
+---
+
+## Virtual hosts
+
+Virtual hosts are defined in code.
+
+1. Add or modify an entry in `server/src/conf.c` (hostname and local docroot).
+2. If needed, adjust declarations in `server/src/conf.h`.
+3. Create the matching folder under `server/www/` and rebuild.
+
+Example:
+
+```bash
+# code change in conf.c adds: "www.example.com" -> "./www/www.example.com"
+mkdir -p server/www/www.example.com
+echo "example" > server/www/www.example.com/index.html
+
+cd server && make
+make run
+curl -i -H "Host: www.example.com" http://127.0.0.1:8080/
+```
+
+---
+
+## Quick checks
+
+Local benchmark against a static file:
+
+```bash
+ab -n 2000 -c 50 http://127.0.0.1:8080/index.html
+```
+
+Rebuild with sanitizers:
+
+```bash
+cd server
+make clean
+CFLAGS="-fsanitize=address,undefined -O1 -fno-omit-frame-pointer -g" make
+./http-server
+```
+
+---
+
+## Troubleshooting
+
+- `connect failed: Connection refused` during FastCGI: php-fpm not running or not listening on `127.0.0.1:9000`.
+- `Primary script unknown` or `Status: 404 Not Found` from php-fpm: `SCRIPT_FILENAME` built in `phptohtml.c` does not point to an existing file under the selected vhost docroot. Check `conf.c` mapping and the file path.
+- Empty `/tmp/httpserver_php_result.html`: the PHP script produced only headers or nothing on stdout; also verify write permissions on `/tmp`.
+
+---
 
 ## Notes
-Separation of concerns: ABNF parser (library) --> semantics layer --> server/IO.
 
-Robustness: fail-fast errors, strict header/grammar checks, consistent Content-Length.
-
-Security-minded: percent-decoding and dot-segment removal before filesystem access, vhost-scoped doc roots.
-
-Minimal deps: single make build, requires `libmagic` (`file/libmagic` package). PHP is optional.
-
-## Configuration quick refs
-Change port/root/default file: `server/src/conf.h`
-
-Edit vhosts: `server/src/conf.c`
-
-MIME detection toggles: `server/src/content_type.c`
-
-PHP result file: `server/src/phptohtml.h` (`PHP_RESULT_FILE`)
+- Single-process, blocking I/O, one request per connection.
+- Minimal path and security handling. Not intended for public Internet exposure as-is.
+- Extend MIME types in `content_type.c` as needed.
