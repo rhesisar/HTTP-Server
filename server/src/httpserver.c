@@ -243,7 +243,7 @@ buildtarget(Request *req)
 	target[i + j + k] = '\0';
 
 	if (!strcmp(target + strlen(target) - strlen(".php"), ".php")) {
-		printf("php file detected: %s", target);
+		printf("php file detected: %s\n", target);
 		phptohtml(target);
 		free(target);
 		target = strdup(PHP_RESULT_FILE);
