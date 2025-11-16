@@ -6,7 +6,7 @@ UseTab: Always
 IndentWidth: 4
 TabWidth: 4
 
-ColumnLimit: 100
+ColumnLimit: 80
 
 DerivePointerAlignment: false
 PointerAlignment: Right   # Request *req, not Request* req
@@ -24,6 +24,7 @@ AllowShortFunctionsOnASingleLine: Empty   # only `void f() {}` if body is empty
 
 # Binary operators / long conditions
 BreakBeforeBinaryOperators: NonAssignment
+BreakBinaryOperations: RespectPrecedence
 
 AlignOperands: Align
 
@@ -48,3 +49,7 @@ AlignConsecutiveMacros: None
 # Misc spacing
 SpaceBeforeParens: ControlStatements
 SpaceAfterCStyleCast: false
+
+ReflowComments: false
+Cpp11BracedListStyle: false
+BinPackArguments: false
