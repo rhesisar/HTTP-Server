@@ -19,6 +19,10 @@ file_content_type(char *filename)
 	if (len >= css_len && !strcasecmp(filename + len - css_len, ".css")) {
 		return strdup("text/css; charset=us-ascii");
 	}
+	size_t html_len = strlen(".html");
+	if (len >= html_len && !strcasecmp(filename + len - html_len, ".html")) {
+		return strdup("text/html; charset=us-ascii");
+	}
 
 	if ((magic_cookie = magic_open(MAGIC_MIME)) == NULL) {
 		error("magic_open");
