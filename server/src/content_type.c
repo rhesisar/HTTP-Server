@@ -26,7 +26,10 @@ file_content_type(char *filename)
 		magic_close(magic_cookie);
 		error("magic_load");
 	}
-	magic_full = magic_file(magic_cookie, filename);
+	if ((magic_full = magic_file(magic_cookie, filename)) == NULL) {
+		magic_close(magic_cookie);
+		return strdup("application/octet-stream; charset=binary");
+	}
 	r = strdup(magic_full);
 	magic_close(magic_cookie);
 	return r;
